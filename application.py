@@ -1,12 +1,11 @@
 from flask import Flask, render_template, request, redirect, jsonify
 from models.model_back import PredictionNet
-import requests
-import json
 from flask_sqlalchemy import SQLAlchemy
 import sqlalchemy.orm
 from cockroachdb.sqlalchemy import run_transaction
 
 app = Flask(__name__)
+app.config.from_pyfile('config.cfg')
 db = SQLAlchemy(app)
 sessionmaker = sqlalchemy.orm.sessionmaker(db.engine)
 
@@ -45,10 +44,9 @@ model_condo.build((None, 1))
 model_condo.load_weights('./models/model_condo.h5')
 
 
-@app.route('/form')
+@app.route('/form', methods = ['POST'])
 def get():
-    request.form[]
-    data_txt = json.loads(data.text)
+    #data_txt = json.loads(data.text)
     forecast = []
     house_type = request.form['type']
     house_type = house_type.lower()
@@ -64,7 +62,7 @@ def get():
         model = model_condo
     else:
         model = model_1
-    day = int(model.predict((1, request.form['kwh']))[1])
+    day = int(model.predict((1, int(request.form['kwh'])))[1])
     for _ in range(5):
         forecast.append(day)
         prediction = model_1.predict((1, day))
@@ -82,4 +80,4 @@ def show_all(id):
     
     
 if __name__ == "__main__":
-    app.run(SQLALCHEMY_DATABASE_URI = 'cockroachdb://example@localhost:26257/example_flask_sqlalchemy', SQLALCHEMY_ECHO = False, SECRET_KEY = '\xfb\x12\xdf\xa1@i\xd6>V\xc0\xbb\x8fp\x16#Z\x0b\x81\xeb\x16', DEBUG = True)
+    app.run(debug = True)
